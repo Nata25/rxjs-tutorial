@@ -1,23 +1,22 @@
-import { BehaviorSubject } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { merge } from "rxjs/observable/merge";
+import { take } from "rxjs/operators";
+import { interval } from "rxjs/observable/interval";
 
-const subj = new BehaviorSubject('Initialising');
-subj.subscribe((v: string) => {
-	addItem(`Subject 1: ${v}`);
-})
+const obs = Observable.create((o: any) => {
+	o.next('String observable');
+	setTimeout(() => {
+		o.next('Second value from string observable');
+	}, 3000)
+});
+const obs2 = interval(1000).pipe(take(5));
 
-subj.next('First value');
-subj.next('Second value');
-subj.next('...just before init of the second subject...');
+const subscribe = (val: number) => {
+	addItem(val.toString());
+}
 
-const unsub = subj.subscribe((v: string) => {
-	addItem(`Subject 2: ${v}`);
-})
-
-subj.next('Third value');
-
-unsub.unsubscribe();
-
-subj.next('Final value');
+const obsMerged = merge(obs, obs2);
+obsMerged.subscribe(subscribe);
 
 function addItem(v: string) {
 	const node = document.createElement('li');
