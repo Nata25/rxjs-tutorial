@@ -1,35 +1,22 @@
-import { Observable } from "rxjs/Observable";
-import { tap, map } from "rxjs/operators";
-import "rxjs/add/operator/share";
+import { Subject } from "rxjs";
 
-const observer = (obs: any) => {
-	obs.next('hi');
-	setInterval(() => {
-		obs.next(`it's me`);
-		// obs.error('Oooops...');
-		// obs.complete();
-	}, 1000);
-}
+const subj = new Subject();
+subj.subscribe((v: string) => {
+	addItem(`Subject 1: ${v}`);
+})
 
-const observable = Observable.create(observer)
-.share();
+subj.next('First value');
+subj.next('Second value');
 
-const subscribe = {
-	next: (v: string) => addItem(v),
-	error: (e: any) => console.error(e),
-	complete: () => console.log('Complete!')
-}
+const unsub = subj.subscribe((v: string) => {
+	addItem(`Subject 2: ${v}`);
+})
 
-observable.subscribe(subscribe);
+subj.next('Third value');
 
-setTimeout(() => {
-	observable
-	.pipe(
-		tap(v => console.log(v)),
-		map(v => `- subscription 2: ${v}`)
-	)
-	.subscribe(subscribe);
-}, 2000);
+unsub.unsubscribe();
+
+subj.next('Final value');
 
 function addItem(v: string) {
 	const node = document.createElement('li');
