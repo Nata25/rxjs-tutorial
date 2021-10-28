@@ -1,18 +1,18 @@
 import { Observable } from "rxjs/Observable";
-import { take, tap, pluck } from "rxjs/operators";
-import { interval } from "rxjs/observable/interval";
-import { fromEvent } from "rxjs/observable/fromEvent";
+import { tap, map } from "rxjs/operators";
+import "rxjs/add/operator/share";
 
 const observer = (obs: any) => {
 	obs.next('hi');
-	setTimeout(() => {
+	setInterval(() => {
 		obs.next(`it's me`);
 		// obs.error('Oooops...');
-		obs.complete();
+		// obs.complete();
 	}, 1000);
 }
 
-const observable = fromEvent(document, 'mousemove');
+const observable = Observable.create(observer)
+.share();
 
 const subscribe = {
 	next: (v: string) => addItem(v),
@@ -20,14 +20,16 @@ const subscribe = {
 	complete: () => console.log('Complete!')
 }
 
+observable.subscribe(subscribe);
+
 setTimeout(() => {
 	observable
 	.pipe(
-		pluck('clientX'),
-		tap(e => console.log(e))
+		tap(v => console.log(v)),
+		map(v => `- subscription 2: ${v}`)
 	)
 	.subscribe(subscribe);
-}, 3000);
+}, 2000);
 
 function addItem(v: string) {
 	const node = document.createElement('li');
