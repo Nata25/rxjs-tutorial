@@ -1,12 +1,13 @@
-import { Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-const subj = new Subject();
+const subj = new BehaviorSubject('Initialising');
 subj.subscribe((v: string) => {
 	addItem(`Subject 1: ${v}`);
 })
 
 subj.next('First value');
 subj.next('Second value');
+subj.next('...just before init of the second subject...');
 
 const unsub = subj.subscribe((v: string) => {
 	addItem(`Subject 2: ${v}`);
