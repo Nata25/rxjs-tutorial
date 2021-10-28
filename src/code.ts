@@ -1,22 +1,21 @@
-import { Observable } from "rxjs/Observable";
-import { merge } from "rxjs/observable/merge";
+import { Subject } from "rxjs/Subject";
 import { take } from "rxjs/operators";
 import { interval } from "rxjs/observable/interval";
+import "rxjs/add/operator/skipUntil";
 
-const obs = Observable.create((o: any) => {
-	o.next('String observable');
-	setTimeout(() => {
-		o.next('Second value from string observable');
-	}, 3000)
-});
-const obs2 = interval(1000).pipe(take(5));
+const obs = interval(1000).pipe(take(10));
+const obs2 = new Subject();
 
 const subscribe = (val: number) => {
 	addItem(val.toString());
 }
 
-const obsMerged = merge(obs, obs2);
-obsMerged.subscribe(subscribe);
+const skippedObs = obs.skipUntil(obs2);
+skippedObs.subscribe(subscribe);
+
+setTimeout(() => {
+	obs2.next('Now you start!')
+}, 3000);
 
 function addItem(v: string) {
 	const node = document.createElement('li');
